@@ -1,0 +1,21 @@
+FROM python:3.8
+
+ENV PYTHONUNBUFFERED 1
+
+WORKDIR /code
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        jq \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --upgrade \
+        pip \
+        setuptools
+
+COPY ./requirements.txt /tmp/requirements.txt
+
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
+
+COPY ./dramatiq_flask /code
+

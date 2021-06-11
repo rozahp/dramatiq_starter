@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  redis:
+    restart: unless-stopped
+    image: redis:latest
+    volumes:
+      - redis_data:/data
+    expose:
+      - "6379"
+
+  dramatiq_worker:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile.worker
+    environment:
+      REDIS_URL: redis
+      WATCHER_PATH: /work
+      dramatiq_prom_host: dramatiq_worker
+      dramatiq_prom_port: 9191
+    depends_on:
+      - redis
+    volumes:
+      - /tmp:/work
+    entrypoint: ./start-workers.sh
+    expose:
+      - "9191"
+
+  dramatiq_web:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile.web
+    environment:
+      REDIS_URL: redis
+      WATCHER_PATH: /work
+      DASHBOARD_PREFIX: /dashboard  # PREFIX URL FOR DASHBOARD
+    depends_on:
+      - redis
+    volumes:
+      - /tmp:/work
+    entrypoint: ./start-web.sh
+    ports:
+      - "5000:5000"
+
+volumes:
+  redis_data:         # FLUSHDB to clear redis
