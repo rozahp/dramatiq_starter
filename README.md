@@ -79,7 +79,7 @@ Note: for this to work you have to install redis first.
     virtualenv -p python3 venv
     source venv/bin/activate
     pip install -r requirements
-   -mini cd dramatiq_flask
+    cd dramatiq_flask
     ./start-web.sh
 
 #### Terminal 2
